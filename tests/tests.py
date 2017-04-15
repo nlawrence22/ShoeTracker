@@ -1,4 +1,5 @@
 import json
+import os
 import unittest
 from json import JSONDecodeError
 
@@ -9,10 +10,23 @@ class ShoesTestCase(unittest.TestCase):
 
     def setUp(self):
         shoetracker.app.config['TESTING'] = True
+        from shoetracker.shoetracker import db
+        db.session.close()
+        db.drop_all()
+        db.create_all()
         self.app = shoetracker.app.test_client()
 
     def tearDown(self):
         pass
+
+    @classmethod
+    def tearDownClass(cls):
+        db_loc = shoetracker.app.config['SQLALCHEMY_DATABASE_URI']
+        if 'sqlite' in db_loc:
+            try:
+                os.remove(str(db_loc[10:]))  # slice off sqlite:///
+            except OSError:
+                print("Unable to remove testDB!")
 
     def test_helloWorld(self):
         response = self.app.get('/')
