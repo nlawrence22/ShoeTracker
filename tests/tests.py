@@ -43,6 +43,28 @@ class ShoesTestCase(unittest.TestCase):
 
         self.assertIn('id', data)
 
+    def test_add_shoe_no_data_returns_400(self):
+        # We use data=json.dumps(None) instead of data=None because
+        # otherwise we can't distinguish between flask rejecting
+        # a malformed request or our code rejecting the malformed
+        # request. Though it likely doesn't matter who rejects
+        # the request, it's nice to explicitly know it's us.
+        response = self.app.post('/shoes', data=json.dumps(None),
+                                 content_type='application/json')
+
+        self.assertEqual(response.status_code, 400)
+
+    def test_add_shoe_without_name_returns_400(self):
+        response = self.app.post('/shoes', data=json.dumps({'id': 1}),
+                                 content_type='application/json')
+
+        self.assertEqual(response.status_code, 400)
+
+    def test_add_shoe_invalid_content_type_returns_415(self):
+        response = self.app.post('/shoes', data=json.dumps(dict(
+            name="New Balance")))
+
+        self.assertEqual(response.status_code, 415)
 
 if __name__ == '__main__':
     unittest.main()

@@ -7,7 +7,6 @@
     :license: BSD, see LICENSE.txt for details
 """
 import os
-import json
 from flask import Flask, jsonify, request, abort
 from flask_sqlalchemy import SQLAlchemy
 
@@ -29,11 +28,19 @@ def hello_world():
 
 @app.route('/shoes', methods=['POST'])
 def add_shoe():
-    data = request.get_json()
-    name = data['name']
+    if request.is_json:
+        data = request.get_json()
 
-    shoe = Shoe(name=name)
-    db.session.add(shoe)
-    db.session.commit()
+        # Validate we actually have a name to work with
+        if not data or 'name' not in data:
+            abort(400)
 
-    return jsonify({'id': shoe.id, 'name': shoe.name})
+        name = data['name'] #TODO: Test for SQLi
+
+        shoe = Shoe(name=name)
+        db.session.add(shoe)
+        db.session.commit()
+
+        return jsonify({'id': shoe.id, 'name': shoe.name})
+    else:
+        abort(415)
