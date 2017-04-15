@@ -7,7 +7,8 @@
     :license: BSD, see LICENSE.txt for details
 """
 import os
-from flask import Flask
+import json
+from flask import Flask, jsonify, request, abort
 from flask_sqlalchemy import SQLAlchemy
 
 
@@ -24,3 +25,15 @@ from shoetracker.models import Shoe
 @app.route('/')
 def hello_world():
     return 'Hello, World!'
+
+
+@app.route('/shoes', methods=['POST'])
+def add_shoe():
+    data = request.get_json()
+    name = data['name']
+
+    shoe = Shoe(name=name)
+    db.session.add(shoe)
+    db.session.commit()
+
+    return jsonify({'id': shoe.id, 'name': shoe.name})
