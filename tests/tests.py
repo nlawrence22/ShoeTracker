@@ -19,13 +19,14 @@ class ShoesTestCase(unittest.TestCase):
         assert b'Hello, World!' in response.data
 
     def test_add_shoe_returns_200(self):
-        response = self.app.post('/shoes', data=dict(
-            name="New Balance"), content_type='application/json')
+        response = self.app.post('/shoes', data=json.dumps(dict(
+            name="New Balance")), content_type='application/json')
+        print(response.data)
         self.assertEqual(response.status_code, 200)
 
     def test_add_shoe_returns_valid_json(self):
-        response = self.app.post('/shoes', data=dict(
-            name="New Balance"), content_type='application/json')
+        response = self.app.post('/shoes', data=json.dumps(dict(
+            name="New Balance")), content_type='application/json')
 
         try:
             data = json.loads(response.get_data(as_text=True))
@@ -35,8 +36,8 @@ class ShoesTestCase(unittest.TestCase):
         self.assertIsNotNone(data)
 
     def test_add_shoe_returns_id(self):
-        response = self.app.post('/shoes', data=dict(
-            name="New Balance"), content_type='application/json')
+        response = self.app.post('/shoes', data=json.dumps(dict(
+            name="New Balance")), content_type='application/json')
 
         data = json.loads(response.get_data(as_text=True))
 
